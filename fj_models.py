@@ -25,7 +25,7 @@ class Estudiante(EntidadSistema):
 
     def obtener_detalles(self):
         return f"Estudiante: {self._nombre} | ID: {self.__id_usuario}"
-        # =========================================
+# =========================================
 # CLIENTE - Implementado por Gerardo
 # =========================================
 
@@ -65,3 +65,13 @@ class Cliente:
 
     def __str__(self):
         return f"Cliente: {self.__nombre} - {self.__correo}"
+    def set_correo(self, nuevo_correo):
+        try:
+            if "@" not in nuevo_correo or "." not in nuevo_correo:
+                raise ClienteError("Correo inválido")
+
+            self.__correo = nuevo_correo
+
+        except ClienteError as e:
+            registrar_log(f"Error al actualizar correo: {e}")
+            raise
