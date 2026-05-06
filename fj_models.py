@@ -1,80 +1,75 @@
-from abc import ABC, abstractmethod
+from fj_exceptions import (CampoVacioError, CorreoInvalidoError, logError)
 
-class EntidadSistema(ABC):
-    @abstractmethod
-    def obtener_detalles(self):
-        pass
-
-class Estudiante(EntidadSistema):
-    def __init__(self, nombre, id_usuario, password):
-        self._nombre = nombre             # Protegido
-        self.__id_usuario = id_usuario    # Privado
-        self.__password = password        # Privado
-        self.historial_reservas = []
-
-    @property
-    def nombre(self):
-        return self._nombre
-
-    @property
-    def id_usuario(self):
-        return self.__id_usuario
-
-    def verificar_password(self, password):
-        return self.__password == password
-
-    def obtener_detalles(self):
-        return f"Estudiante: {self._nombre} | ID: {self.__id_usuario}"
 # =========================================
-# CLIENTE - Implementado por Gerardo
+# ---- REGISTRO DE LOGS -------------------
 # =========================================
-
-class ClienteError(Exception):
-    pass
-
 
 def registrar_log(mensaje):
     try:
         with open("logs.txt", "a") as archivo:
             archivo.write(mensaje + "\n")
     except Exception as e:
-        print("Error al escribir en log:", e)
+       raise logError("Error al escribir en log:", e)
 
+# =========================================
+# CLIENTE - Implementado por Gerardo
+# =========================================
 
 class Cliente:
-    def __init__(self, nombre, correo):
+    def __init__(self, usuario, nombre, correo, password):
         try:
+            if not usuario or usuario.strip() == "":
+                raise CampoVacioError("Usuario vacío")
+            
             if not nombre or nombre.strip() == "":
-                raise ClienteError("Nombre vacío")
+                raise CampoVacioError("Nombre vacío")
 
             if "@" not in correo or "." not in correo:
-                raise ClienteError("Correo inválido")
-
+                raise CorreoInvalidoError("Correo inválido")
+            
+            if not password or password.strip() == "":
+                raise CampoVacioError("Contraseña vacía. Ingrese una contraseña")
+            
+            self.__usuario = usuario
             self.__nombre = nombre
             self.__correo = correo
-
-        except ClienteError as e:
+            self.__password = password
+            
+            self.historial_reservas = []
+           
+        except (CampoVacioError, CorreoInvalidoError) as e:
             registrar_log(f"Error cliente: {e}")
             raise
 
+    def get_usuario(self):
+        return self.__usuario
+    
     def get_nombre(self):
         return self.__nombre
 
     def get_correo(self):
         return self.__correo
+    
+    
+    def verificar_password(self, pwd):
+        return self.__password == pwd
 
-    def __str__(self):
-        return f"Cliente: {self.__nombre} - {self.__correo}"
+
     def set_correo(self, nuevo_correo):
         try:
             if "@" not in nuevo_correo or "." not in nuevo_correo:
-                raise ClienteError("Correo inválido")
+                raise CorreoInvalidoError("Correo inválido")
 
             self.__correo = nuevo_correo
 
-        except ClienteError as e:
+        except CorreoInvalidoError as e:
             registrar_log(f"Error al actualizar correo: {e}")
             raise
+        
+        
+    def __str__(self):
+        return f"Cliente: {self.__nombre} - {self.__correo}"    
+        
     def to_dict(self):
         return {
             "nombre": self.__nombre,

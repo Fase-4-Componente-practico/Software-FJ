@@ -1,8 +1,9 @@
 import logging
-from fj_models import Estudiante
+from fj_models import Cliente
 from fj_services import AsesoriaAcademica, ReservaAuditorio, PrestamoEquipo
 from fj_operations import Reserva
-from fj_exceptions import UniversidadError, AutenticacionError
+from fj_exceptions import SistemaError,AutenticacionError,CampoVacioError,CorreoInvalidoError,logError
+
 
 # Configuración del Log
 logging.basicConfig(
@@ -22,8 +23,8 @@ class App:
 
     def menu_principal(self):
         while True:
-            print("\n--- SOFTWARE FJ: GESTIÓN UNIVERSITARIA ---")
-            print("1. Registro de Estudiante")
+            print("\n--- SOFTWARE FJ: GESTIÓN CLIENTES---")
+            print("1. Registro de Cliente")
             print("2. Login")
             print("3. Salir")
             op = input("Seleccione: ")
@@ -33,24 +34,40 @@ class App:
                 elif op == "2": self.login()
                 elif op == "3": break
                 else: print("Opción inválida.")
-            except UniversidadError as e:
+                
+            except SistemaError as e:
                 print(f"\n[!] Error: {e}")
+                
             except Exception as e:
                 logging.critical(f"Error inesperado: {e}", exc_info=True)
                 print("\n[X] Error crítico. Contacte a soporte.")
 
-    def registrar(self):
-        id_u = input("ID de Usuario: ")
-        if id_u in self.usuarios: raise AutenticacionError("El usuario ya existe.")
-        nom = input("Nombre completo: ")
-        pwd = input("Contraseña: ")
-        self.usuarios[id_u] = Estudiante(nom, id_u, pwd)
-        logging.info(f"Nuevo usuario registrado: {id_u}")
-        print("Registro exitoso.")
 
+    def registrar(self):
+        try:
+            id_u = input("Usuario: ").strip()
+            nom = input("Nombre completo: ").strip()
+            mail = input("Correo electrónico: ").strip()
+            pwd = input("Contraseña: ").strip()
+            
+            if id_u in self.usuarios:
+                raise SistemaError("El usuario ya existe")
+            
+            cliente = Cliente(id_u, nom, mail, pwd)
+            self.usuarios[id_u] = cliente
+            logging.info(f"Nuevo usuario registrado: {id_u}")
+            print("Registro exitoso.")
+            
+        except (CampoVacioError, CorreoInvalidoError,SistemaError,) as e:
+            print(f"Error: {e}")
+    
+        except logError as e:
+            print(f"Error al registrar el usuario: {e}")
+            
+            
     def login(self):
-        id_u = input("ID: ")
-        pwd = input("Password: ")
+        id_u = input("Usuario: ")
+        pwd = input("Contraseña: ")
         user = self.usuarios.get(id_u)
         
         if user and user.verificar_password(pwd):
@@ -73,7 +90,7 @@ class App:
                 s_op = input("Seleccione servicio: ")
                 
                 try:
-                    if s_op not in self.servicios: raise UniversidadError("Servicio no válido.")
+                    if s_op not in self.servicios: raise SistemaError("Servicio no válido.")
                     dur = int(input("Ingrese cantidad (Horas/Días): "))
                     res = Reserva(user, self.servicios[s_op], dur)
                     ticket = res.procesar()
@@ -81,7 +98,7 @@ class App:
                     print(f"\nEXITO: {ticket}")
                 except ValueError:
                     print("Error: La duración debe ser un número entero.")
-                except UniversidadError as e:
+                except SistemaError as e:
                     print(f"Error en reserva: {e}")
 
             elif op == "2":

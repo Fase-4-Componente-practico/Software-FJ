@@ -3,8 +3,8 @@ from datetime import datetime
 from fj_exceptions import ReservaInvalidaError
 
 class Reserva:
-    def __init__(self, estudiante, servicio, duracion):
-        self.estudiante = estudiante
+    def __init__(self, cliente, servicio, duracion):
+        self.cliente = cliente
         self.servicio = servicio
         self.duracion = duracion
         self.fecha = datetime.now()
@@ -22,5 +22,8 @@ class Reserva:
         
         except Exception as e:
             # Encadenamiento de excepciones y log
-            logging.error(f"Error procesando reserva para {self.estudiante.id_usuario}: {e}")
+            logging.error(f"Error procesando reserva para {self.cliente.get_nombre()}: {e}")
             raise ReservaInvalidaError("No se pudo completar la reserva por datos inconsistentes.") from e
+
+
+  
