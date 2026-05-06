@@ -75,3 +75,8 @@ class Cliente:
         except ClienteError as e:
             registrar_log(f"Error al actualizar correo: {e}")
             raise
+    def to_dict(self):
+        return {
+            "nombre": self.__nombre,
+            "correo": self.__correo
+        }
