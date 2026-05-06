@@ -79,4 +79,6 @@ class Cliente:
         return {
             "nombre": self.__nombre,
             "correo": self.__correo
-        }
+        } 
+    def es_valido(self):
+        return bool(self.__nombre and "@" in self.__correo and "." in self.__correo)
