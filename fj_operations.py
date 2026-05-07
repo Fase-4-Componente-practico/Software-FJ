@@ -19,11 +19,26 @@ class Reserva:
                          f"Servicio: {self.servicio.nombre} | "
                          f"Costo: ${costo:.2f}")
             return resultado
+            
         
         except Exception as e:
             # Encadenamiento de excepciones y log
             logging.error(f"Error procesando reserva para {self.cliente.get_nombre()}: {e}")
             raise ReservaInvalidaError("No se pudo completar la reserva por datos inconsistentes.") from e
 
+def registrar_reserva(lista_reservas, cliente, servicio, duracion):
+    try:
+        reserva = Reserva(cliente, servicio, duracion)
 
+        resultado = reserva.procesar()
+
+        lista_reservas.append(reserva)
+
+        logging.info(f"Reserva registrada para {cliente.get_nombre()}")
+
+        return resultado
+
+    except ReservaInvalidaError as e:
+        logging.error(f"Error al registrar reserva: {e}")
+        return None
   
