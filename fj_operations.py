@@ -53,4 +53,21 @@ def mostrar_reservas(lista_reservas):
 
     except Exception as e:
         logging.error(f"Error al mostrar reservas: {e}")
+
+def cancelar_reserva(lista_reservas, indice):
+    try:
+        if indice < 0 or indice >= len(lista_reservas):
+            raise ReservaInvalidaError("Reserva no encontrada")
+
+        reserva_cancelada = lista_reservas.pop(indice)
+
+        logging.info(
+            f"Reserva cancelada: {reserva_cancelada.servicio.nombre}"
+        )
+
+        return "Reserva cancelada correctamente"
+
+    except ReservaInvalidaError as e:
+        logging.error(f"Error al cancelar reserva: {e}")
+        return None
   
