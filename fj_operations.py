@@ -41,4 +41,16 @@ def registrar_reserva(lista_reservas, cliente, servicio, duracion):
     except ReservaInvalidaError as e:
         logging.error(f"Error al registrar reserva: {e}")
         return None
+
+def mostrar_reservas(lista_reservas):
+    try:
+        if len(lista_reservas) == 0:
+            logging.info("No hay reservas registradas")
+            return
+
+        for reserva in lista_reservas:
+            print(reserva.procesar())
+
+    except Exception as e:
+        logging.error(f"Error al mostrar reservas: {e}")
   
