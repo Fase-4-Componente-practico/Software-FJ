@@ -12,7 +12,7 @@ class SistemaError(Exception):
 # --- EXCEPCIONES DE CLIENTE ----
 #================================
 
-class clienteError(SistemaError):
+class ClienteError(SistemaError):
     """Errores relacionados con la gestión de clientes."""
     pass
 
@@ -20,20 +20,27 @@ class AutenticacionError(SistemaError):
     """Error en login o registro."""
     pass
 
-class CampoVacioError(clienteError):
+class CampoVacioError(ClienteError):
     """Error cuando un campo del cliente está vacío."""
     pass
 
-class CorreoInvalidoError(clienteError):
+class CorreoInvalidoError(ClienteError):
     """Error cuando el correo del cliente no es válido."""
     pass
 
+class NombreInvalidoError(SistemaError):
+    """Error cuando el nombre del cliente no es válido."""
+    pass
+
+class PasswordInvalidoError(SistemaError):
+    """Error cuando el password del cliente no es válido."""
+    pass
 
 #================================
 # --- ERRORES DE LOG ------------
 #================================
 
-class logError(Exception):
+class LogError(Exception):
     """Errores relacionados con la gestión de logs."""
     pass
 

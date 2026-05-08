@@ -1,4 +1,4 @@
-from fj_exceptions import (CampoVacioError, CorreoInvalidoError, logError)
+from fj_exceptions import (CampoVacioError, CorreoInvalidoError, LogError)
 
 # =========================================
 # ---- REGISTRO DE LOGS -------------------
@@ -9,7 +9,7 @@ def registrar_log(mensaje):
         with open("logs.txt", "a") as archivo:
             archivo.write(mensaje + "\n")
     except Exception as e:
-       raise logError("Error al escribir en log:", e)
+       raise LogError("Error al escribir en log:", e)
 
 # =========================================
 # CLIENTE - Implementado por Gerardo

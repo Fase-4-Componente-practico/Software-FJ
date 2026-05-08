@@ -2,10 +2,9 @@ import logging
 from fj_models import Cliente
 from fj_services import AsesoriaAcademica, ReservaAuditorio, PrestamoEquipo
 from fj_operations import Reserva
-from fj_exceptions import SistemaError,AutenticacionError,CampoVacioError,CorreoInvalidoError,logError
+from fj_exceptions import SistemaError,AutenticacionError,CampoVacioError,CorreoInvalidoError,NombreInvalidoError,PasswordInvalidoError,LogError
 
 
-# Configuración del Log
 logging.basicConfig(
     filename='software_fj_logs.log',
     level=logging.INFO,
@@ -20,21 +19,81 @@ class App:
             "2": ReservaAuditorio("Auditorio Principal", 100.0),
             "3": PrestamoEquipo("Laptop Pro", 15.0)
         }
+    
+    #====================================
+    # fUNCIONES PARA VALIDACIÓN DE DATOS 
+    #====================================
+    
+    def pedir_datos(self, mensaje, tipo="texto"):
+        while True:
+            dato = input(mensaje).strip()
+            
+            if not dato:
+                print("Error: El campo no puede estar vacío. Intente nuevamente.")
+                continue
+            
+            if tipo == "nombre":
+                if not self.validar_nombre(dato):
+                    print("Error: El nombre debe contener solo letras y espacios. Intente nuevamente.")
+                    continue
+            
+            elif tipo == "correo":
+                if not self.validar_correo(dato):
+                    print("Error: El correo debe contener '@' y '.'. Intente nuevamente.")
+                    continue
+                
+            elif tipo == "password":
+                if not self.validar_password(dato):
+                    print("Error: El password debe tener al menos 8 caracteres. Intente nuevamente.")
+                    continue
+                
+            return dato
+        
+    
+    def validar_nombre(self, nombre):
+        return nombre.replace(" ", "").isalpha()
+    
+    
+    def validar_correo(self, correo):
+        
+        return "@" in correo and "." in correo
+    
+    def validar_password(self, password):
+        return len(password) >= 8       
+    
+        
+    #====================================
+    # MENU PRINCIPAL DEL SISTEMA 
+    #====================================
+             
 
     def menu_principal(self):
+        
+        opciones = {
+            "1": self.registrar,
+            "2": self.login
+        }
         while True:
             print("\n--- SOFTWARE FJ: GESTIÓN CLIENTES---")
             print("1. Registro de Cliente")
             print("2. Login")
             print("3. Salir")
+            
+            
             op = input("Seleccione: ")
             
             try:
-                if op == "1": self.registrar()
-                elif op == "2": self.login()
-                elif op == "3": break
-                else: print("Opción inválida.")
+                if op == "3": 
+                    print("Saliendo del sistema. ¡Hasta luego!")
+                    break
                 
+                elif op in opciones:
+                    opciones[op]()
+                    
+                else:
+                    print("Opción inválida. Por favor, seleccione una opción válida.")
+                
+                            
             except SistemaError as e:
                 print(f"\n[!] Error: {e}")
                 
@@ -43,31 +102,43 @@ class App:
                 print("\n[X] Error crítico. Contacte a soporte.")
 
 
+
+    #====================================
+    # REGISTRAR Y AUTENTICAR USUARIOS
+    #====================================
+    
     def registrar(self):
+                
         try:
-            id_u = input("Usuario: ").strip()
-            nom = input("Nombre completo: ").strip()
-            mail = input("Correo electrónico: ").strip()
-            pwd = input("Contraseña: ").strip()
+            id_u = self.pedir_datos("Usuario: ")
+            nom = self.pedir_datos("Nombre completo: ", "nombre")
+            mail = self.pedir_datos("Correo electrónico: ", "correo")
+            pwd = self.pedir_datos("Password: ", "password")
             
+             
             if id_u in self.usuarios:
                 raise SistemaError("El usuario ya existe")
             
+            
             cliente = Cliente(id_u, nom, mail, pwd)
-            self.usuarios[id_u] = cliente
+            self.usuarios[id_u] = cliente           
+            
             logging.info(f"Nuevo usuario registrado: {id_u}")
             print("Registro exitoso.")
+                           
+        except (CampoVacioError, CorreoInvalidoError, NombreInvalidoError, PasswordInvalidoError, SistemaError,) as e:
+                print(f"Error: {e}")
+        
+        except LogError as e:
+                print(f"Error al registrar el usuario: {e}")
             
-        except (CampoVacioError, CorreoInvalidoError,SistemaError,) as e:
-            print(f"Error: {e}")
     
-        except logError as e:
-            print(f"Error al registrar el usuario: {e}")
-            
-            
+    # =====================================
+    # LOGIN Y ÁREA DE USUARIOS
+    # =====================================      
     def login(self):
         id_u = input("Usuario: ")
-        pwd = input("Contraseña: ")
+        pwd = input("Password: ")
         user = self.usuarios.get(id_u)
         
         if user and user.verificar_password(pwd):
@@ -78,7 +149,7 @@ class App:
 
     def area_usuario(self, user):
         while True:
-            print(f"\n--- BIENVENIDO, {user.nombre} ---")
+            print(f"\n--- BIENVENIDO, {user.get_nombre()} ---")
             print("1. Nueva Reserva / Servicio")
             print("2. Ver mis actividades")
             print("3. Cerrar Sesión")
