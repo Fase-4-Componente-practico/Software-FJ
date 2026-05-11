@@ -183,4 +183,60 @@ class App:
 if __name__ == "__main__":
     app = App()
     app.menu_principal()
+    print("\n--- SIMULACIÓN AUTOMÁTICA ---")
+
+try:
+    # Listas
+    clientes = []
+    reservas = []
+
+    # 1. Cliente válido
+    c1 = Cliente("user1", "Gerardo", "gerardo@gmail.com", "1234")
+    clientes.append(c1)
+
+    # 2. Cliente inválido (correo malo)
+    try:
+        c2 = Cliente("user2", "Ana", "correo_malo", "1234")
+    except Exception as e:
+        print("Error esperado:", e)
+
+    # 3. Servicios
+    s1 = AsesoriaAcademica("Asesoría", 20)
+    s2 = ReservaAuditorio("Auditorio", 100)
+
+    # 4. Reserva válida
+    r1 = Reserva(c1, s1, 2)
+    print(r1.procesar())
+    reservas.append(r1)
+
+    # 5. Reserva inválida
+    try:
+        r2 = Reserva(c1, s2, -3)
+        print(r2.procesar())
+    except Exception as e:
+        print("Error esperado:", e)
+
+    # 6. Otra reserva válida
+    r3 = Reserva(c1, s2, 3)
+    print(r3.procesar())
+    reservas.append(r3)
+
+    # 7. Cambio de correo válido
+    c1.set_correo("nuevo@gmail.com")
+
+    # 8. Cambio de correo inválido
+    try:
+        c1.set_correo("malcorreo")
+    except Exception as e:
+        print("Error esperado:", e)
+
+    # 9. Mostrar reservas
+    for r in reservas:
+        print(r.procesar())
+
+    # 10. Validación cliente
+    print("Cliente válido:", c1.es_valido())
+
+except Exception as e:
+    print("Error general:", e)
 
