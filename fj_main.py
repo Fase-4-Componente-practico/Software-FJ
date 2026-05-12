@@ -1,3 +1,10 @@
+#--------------------------------------------------------------------
+#--- ARCHIVO: fj_main.py ------------------------------------------
+# Es el archivo principal del sistema de gestión de reservas.
+# Contiene la clase App con el menú principal, funciones de registro,
+# login y simulación.
+#--------------------------------------------------------------------
+
 import logging
 from fj_models import Cliente
 from fj_services import AsesoriaAcademica, ReservaAuditorio, PrestamoEquipo
@@ -29,10 +36,12 @@ class App:
         while True:
             dato = input(mensaje).strip()
             
+            # Verifica que el campo no esté vacío.
             if not dato:
                 print("Error: El campo no puede estar vacío. Intente nuevamente.")
                 continue
-            
+           
+            # Validaciones específicas según el tipo de dato.
             if tipo == "nombre":
                 if not self.validar_nombre(dato):
                     print("Error: El nombre debe contener solo letras y espacios. Intente nuevamente.")
@@ -53,7 +62,6 @@ class App:
     
     def validar_nombre(self, nombre):
         return nombre.replace(" ", "").isalpha()
-    
     
     def validar_correo(self, correo):
         return "@" in correo and "." in correo
@@ -111,15 +119,15 @@ class App:
     def registrar(self):
                 
         try:
+            # Se piden los datos al usuario y se crea un cliente nuevo.
             id_u = self.pedir_datos("Usuario: ")
             nom = self.pedir_datos("Nombre completo: ", "nombre")
             mail = self.pedir_datos("Correo electrónico: ", "correo")
             pwd = self.pedir_datos("Password: ", "password")
             
-             
+            # Verifica que el usuario no exista antes de crear el cliente.
             if id_u in self.usuarios:
                 raise SistemaError("El usuario ya existe")
-            
             
             cliente = Cliente(id_u, nom, mail, pwd)
             self.usuarios[id_u] = cliente           
@@ -144,13 +152,18 @@ class App:
         pwd = input("Password: ")
         user = self.usuarios.get(id_u)
         
+        # Verifica que el usuario exista y que la contraseña sea correcta.
         if user and user.verificar_password(pwd):
             logging.info(f"Login exitoso: {id_u}")
             self.area_usuario(user)
         else:
             raise AutenticacionError("ID o contraseña incorrectos.")
         
-
+    # ===========================================================================================
+    # --- ÁREA DE USUARIOS  ---------------------------------------------------------------------
+    # Muestra el menú de opciones para el usuario autenticado, con funcionalidades para
+    # realizar reservas, ver actividades, actualizar correo, cancelar reservas y ver información.
+    # ===========================================================================================
     def area_usuario(self, user):
         while True:
             print(f"\n--- BIENVENIDO {user.get_nombre()} ---\n")
@@ -162,8 +175,10 @@ class App:
             print("6. Cerrar Sesión")
             op = input("Seleccione: ")
 
+            # Opción 1: Nueva reserva o servicio.
             if op == "1":
                 print("\nServicios disponibles:")
+                # Muestra cada servicio con su descripción.
                 for k, v in self.servicios.items():
                     print(f"{k}. {v.nombre}")
                     print(f"Descripción: {v.describir_servicio()}")
@@ -176,6 +191,7 @@ class App:
                     servicio = self.servicios[s_op]
                     dur = int(input("Ingrese cantidad (Horas): "))
                     
+                    # Diccionario vacio para guardar parámetros adicionales según el servicio seleccionado.
                     kwargs = {}
                     if s_op == "1":  # Asesoría académica
                         resp = input("¿Es asesoria grupal? (s/n): ").strip().lower()
@@ -196,7 +212,8 @@ class App:
                     print("Error: La duración debe ser un número entero.")
                 except SistemaError as e:
                     print(f"Error en reserva: {e}")
-
+                    
+            # Opción 2: Ver actividades del usuario.
             elif op == "2":
                 print("\n--- TUS ACTIVIDADES ---")
                 if not user.historial_reservas:
@@ -205,7 +222,7 @@ class App:
                     for i, item in enumerate(user.historial_reservas):
                         print(f"{i + 1}. {item.procesar()}")
                 
-                
+            # Opción 3: Actualizar correo del usuario.
             elif op == "3":
                 print("\n--- ACTUALIZAR CORREO ---")
                 nuevo_correo = self.pedir_datos("Nuevo correo: ","correo")
@@ -215,7 +232,8 @@ class App:
                     print("Correo actualizado exitosamente.")
                 except CorreoInvalidoError as e:
                     print(f"Error al actualizar correo: {e}")
-                    
+            
+            # Opción 4: Cancelar una reserva existente.
             elif op == "4":
                 print("\n--- CANCELAR RESERVA ---")
                 if not user.historial_reservas:
@@ -223,7 +241,7 @@ class App:
                 else:
                     print("TUS RESERVAS:")
                     for i, item in enumerate(user.historial_reservas):
-                        print(f"{i + 1}. {item.procesar()}")
+                        print(f"\n{i + 1}. {item.procesar()}")
                         
                     try:
                         num = int(input("Seleccione reserva a cancelar: "))
@@ -240,13 +258,15 @@ class App:
                     except ValueError:
                         print("Error: Selección un item válido.")
             
+            # Opción 5: Mostrar información del usuario.
             elif op == "5":
                 print("\n--- Información de usuario ---")
                 print(f"Usuario: {user.get_usuario()}")
                 print(f"Nombre: {user.get_nombre()}")
                 print(f"Correo: {user.get_correo()}")
                 print(f"Reservas: {len(user.historial_reservas)} activas")
-                
+            
+            # Opción 6: Cerrar sesión y volver al menú principal.  
             elif op == "6":
                 print("\nVolviendo al menú principal...")
                 break
@@ -271,14 +291,14 @@ class App:
             print("Cliente creado:", 
                   "\nNombre:", c1.get_nombre(), "Correo:", c1.get_correo())
 
-            # 2. Cliente inválido (correo malo)
+            # 2. Cliente inválido (correo inválido)
             print("\n2. Intentando crear cliente con correo inválido...")
             try:
                 c2 = Cliente("user2", "Ana", "correo_malo", "1234")
             except Exception as e:
                 print("Error esperado:", e)
 
-            # 3. Servicios
+            # 3. Servicios de prueba
             print("\n3. Reservación valida de servicios...")
             s1 = AsesoriaAcademica("Asesoría", 5000.0)
             s2 = ReservaAuditorio("Auditorio", 10000.0)

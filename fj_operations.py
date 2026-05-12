@@ -1,17 +1,29 @@
+#---------------------------------------------------------------
+#  --- ARCHIVO: fj_operations.py -------------------------------
+# Define las operaciones para gestionar las reservas. 
+# contiene funciones como registrar, mostrar y cancelar reservas.
+#---------------------------------------------------------------
+
 import logging
 from datetime import datetime
 from fj_exceptions import ReservaInvalidaError
+
+# ============================================================================
+# ---- CLASE RESERVA ---------------------------------------------------------
+# Representa una reserva realizada por un cliente para un servicio específico
+# ============================================================================
 
 class Reserva:
     def __init__(self, cliente, servicio, duracion, **kwargs):
         self.cliente = cliente
         self.servicio = servicio
         self.duracion = duracion
-        self.kwargs = kwargs
-        self.fecha = datetime.now()
+        self.kwargs = kwargs    # Guarda los paramotros adicionales.
+        self.fecha = datetime.now() 
 
     def procesar(self):
         try:
+            # Verifica que la duración sea un número positivo.
             if not isinstance(self.duracion, int) or self.duracion <= 0:
                 raise ReservaInvalidaError(f"Duración inválida: {self.duracion}")
             
@@ -19,6 +31,7 @@ class Reserva:
             costo = resultado_calculo["costo"]
             detalle = resultado_calculo["detalle"]
             
+            # Ticket de reserva con formato detallado.
             resultado = (f"Fecha y hora actual: {self.fecha.strftime('%Y-%m-%d %H:%M')} | "
                          f"\nServicio: {self.servicio.nombre} | "
                          f"\nCosto: ${costo:,.0f} | "
@@ -29,6 +42,12 @@ class Reserva:
             # Encadenamiento de excepciones y log
             logging.error(f"Error procesando reserva para {self.cliente.get_nombre()}: {e}")
             raise ReservaInvalidaError("No se pudo completar la reserva por datos inconsistentes.") from e
+
+
+# ============================================================================
+# ---- FUNCIONES DE GESTIÓN DE RESERVAS --------------------------------------
+# Funciones para registrar, mostrar y cancelar reservas, con manejo de excepciones
+# ============================================================================
 
 def registrar_reserva(lista_reservas, cliente, servicio, duracion,**kwargs):
     try:

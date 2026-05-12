@@ -1,16 +1,24 @@
-#--------------------------------
-# --- EXCEPCIONES DEL SISTEMA ---
-#--------------------------------
+#----------------------------------------------------
+#--- ARCHIVO: fj_exceptions.py ---------------------
+# Define todas las excepciones personalizadas para el 
+# sistema de gestión de reservas.
+#----------------------------------------------------
 
+
+#=======================================
+# --- EXCEPCION BASE -------------------
+# todas las demas herendan de esta clase
+#=======================================
 
 class SistemaError(Exception):
     """Clase base para las excepciones del sistema."""
     pass
 
 
-#================================
-# --- EXCEPCIONES DE CLIENTE ----
-#================================
+#============================================
+# --- EXCEPCIONES DE CLIENTE ----------------
+# Errores relacionados con datos del cliente.
+#============================================
 
 class ClienteError(SistemaError):
     """Errores relacionados con la gestión de clientes."""
@@ -45,9 +53,10 @@ class LogError(Exception):
     pass
 
 
-#================================
-# --- EXCEPCIONES DE SERVICIOS ----
-#================================
+#=============================================
+# --- EXCEPCIONES DE SERVICIOS ---------------
+# Errores relacionados con datos de servicios.
+#=============================================
 
 
 class ReservaInvalidaError(SistemaError):
