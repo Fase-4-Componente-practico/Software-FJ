@@ -1,4 +1,4 @@
-from fj_exceptions import (CampoVacioError, CorreoInvalidoError, LogError)
+from fj_exceptions import (CampoVacioError, CorreoInvalidoError, LogError, NombreInvalidoError, PasswordInvalidoError)
 
 # =========================================
 # ---- REGISTRO DE LOGS -------------------
@@ -20,15 +20,21 @@ class Cliente:
         try:
             if not usuario or usuario.strip() == "":
                 raise CampoVacioError("Usuario vacío")
-            
+                       
             if not nombre or nombre.strip() == "":
                 raise CampoVacioError("Nombre vacío")
+            
+            if not nombre.replace(" ", "").isalpha():
+                raise NombreInvalidoError("Nombre inválido. Solo se permiten letras y espacios.")
 
             if "@" not in correo or "." not in correo:
                 raise CorreoInvalidoError("Correo inválido")
             
             if not password or password.strip() == "":
                 raise CampoVacioError("Contraseña vacía. Ingrese una contraseña")
+            
+            if len(password) < 8:
+                raise PasswordInvalidoError("Contraseña inválida. Debe tener al menos 8 caracteres.")
             
             self.__usuario = usuario
             self.__nombre = nombre
@@ -37,7 +43,7 @@ class Cliente:
             
             self.historial_reservas = []
            
-        except (CampoVacioError, CorreoInvalidoError) as e:
+        except (CampoVacioError, CorreoInvalidoError, NombreInvalidoError, PasswordInvalidoError) as e:
             registrar_log(f"Error cliente: {e}")
             raise
 

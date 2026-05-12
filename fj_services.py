@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Servicio(ABC):
     def __init__(self, nombre, costo_base):
         self.nombre = nombre
@@ -10,27 +11,47 @@ class Servicio(ABC):
         pass
 
 class AsesoriaAcademica(Servicio):
-    def calcular_costo(self, horas, es_grupal=False):
+   
+    def calcular_costo(self, cantidad, **kwargs):
         # Polimorfismo: cálculo con parámetro opcional
-        precio = self.costo_base * horas
-        return precio * 1.20 if es_grupal else precio
+        es_grupal = kwargs.get("es_grupal", False)      
+        precio = self.costo_base * cantidad
+        costo_final = precio * 1.20 if es_grupal else precio
+        return {
+            "costo": costo_final,
+            "detalle": "Modalidad Grupal (+20%)" if es_grupal else "Modalidad: Individual"
+        }
+    
     def describir_servicio(self):
         return "Asesorías académicas personalizadas por horas."
 
 class ReservaAuditorio(Servicio):
-    def calcular_costo(self, horas, con_limpieza=True):
+    
+    def calcular_costo(self, cantidad, **kwargs):
         # Polimorfismo: incluye un cargo fijo adicional
-        cargo_extra = 15.0 if con_limpieza else 0.0
-        return (self.costo_base * horas) + cargo_extra
+        incluir_limpieza = kwargs.get("incluir_limpieza", True)
+        cargo_extra = 15000 if incluir_limpieza else 0.0
+        costo_final = (self.costo_base * cantidad) + cargo_extra
+        
+        return {
+            "costo": costo_final,
+            "detalle": "Incluye servicio de limpieza ($15,000)" if incluir_limpieza else "Sin servicio de limpieza"
+        }
+   
     def describir_servicio(self):
-        return "Reserva de auditorios para eventos y reuniones."
+        return "Reserva de auditorios para eventos y reuniones por horas."
 
 class PrestamoEquipo(Servicio):
-    def calcular_costo(self, dias):
-        # Polimorfismo: descuento por volumen
-        total = self.costo_base * dias
-        if dias > 5:
-            total *= 0.90  # 10% descuento
-        return total
+    def calcular_costo(self, cantidad,**kwargs):
+        # Polimorfismo: descuento por cantidad de días
+        total = self.costo_base * cantidad
+        descuento = False
+        if cantidad > 5:
+            total *= 0.90  # 10% descuento por mas de 5 horas
+            descuento = True
+        return {
+            "costo": total,
+            "detalle": "Descuento del 10% aplicado por mas de 5 dias " if descuento else "Sin descuento"
+        }
     def describir_servicio(self):
-        return "Préstamo de equipos tecnológicos por días."
+        return "Préstamo de equipos tecnológicos por horas."

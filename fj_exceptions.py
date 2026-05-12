@@ -28,11 +28,11 @@ class CorreoInvalidoError(ClienteError):
     """Error cuando el correo del cliente no es válido."""
     pass
 
-class NombreInvalidoError(SistemaError):
+class NombreInvalidoError(ClienteError):
     """Error cuando el nombre del cliente no es válido."""
     pass
 
-class PasswordInvalidoError(SistemaError):
+class PasswordInvalidoError(ClienteError):
     """Error cuando el password del cliente no es válido."""
     pass
 
